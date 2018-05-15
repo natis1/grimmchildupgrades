@@ -30,7 +30,7 @@ namespace GrimmchildUpgrades
         // config file
         public static double speedModifier = 3.0f;
         public static double rangeModifier = 2.0f;
-        public static double FBSpeedModifier = 3.0f;
+        public static double FBSpeedModifier = 1.5f;
 
         public static int maxDamage;
         public static int notchesCost;
@@ -71,7 +71,7 @@ namespace GrimmchildUpgrades
 
             if (done && grimmchild != null)
             {
-                Log("Your attack timer value is: " + FSMUtility.LocateFSM(grimmchild, "Control").FsmVariables.GetFsmFloat("Attack Timer").Value);
+                //Log("Your attack timer value is: " + FSMUtility.LocateFSM(grimmchild, "Control").FsmVariables.GetFsmFloat("Attack Timer").Value);
 
                 return;
             }
@@ -85,8 +85,9 @@ namespace GrimmchildUpgrades
             Log("Loaded Grimmchild");
 
             gcFSM = FSMUtility.LocateFSM(grimmchild, "Control");
-            if (baseFireInterval < 0)
+            if (baseFireInterval < 0.0)
             {
+                Log("Set default values for speeds");
                 setDefaultGCValues();
             }            
             
@@ -94,9 +95,7 @@ namespace GrimmchildUpgrades
             FsmState followState = gcFSM.GetState("Follow");
             FloatCompare[] followCompare = followState.GetActionsOfType<FloatCompare>();
             //followCompare[0].float2 = 1.0f;
-
-
-
+            
             followCompare[1].float2 = .5f;
 
             FsmState anticAttack = gcFSM.GetState("Antic");
@@ -111,8 +110,27 @@ namespace GrimmchildUpgrades
 
             gcFSM.FsmVariables.GetFsmFloat("Flameball Speed").Value = (float) (baseFBSpeed * FBSpeedModifier);
             grimmchild.FindGameObjectInChildren("Enemy Range").GetComponent<CircleCollider2D>().radius = (float) (baseRange * rangeModifier);
-            
 
+            Vector3 fbSize = new Vector3(3f, 3f, 3f);
+            //grimmchild.FindGameObjectInChildren("Flame Point").transform.localScale = fbSize;
+
+            //FsmState shootYouFool = gcFSM.GetState("Shoot");
+            //SetScale bigBalls = new SetScale();
+            //SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
+
+
+            //bigBalls.vector = fbSize;
+            //bigBalls.Fsm = FSMUtility.LocateFSM(spawnObjs[0]., "Control");
+
+            //FireAtTarget[] oldFire = shootYouFool.GetActionsOfType<FireAtTarget>();
+
+            //shootYouFool.RemoveActionsOfType<FireAtTarget>();
+
+
+            //SpawnObjectFromGlobalPool newShot = new SpawnObjectFromGlobalPool();
+
+            //SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
+            //spawnObjs[0].
 
             /*
             FsmState waitState2 = gcFSM.GetState("Pause");
