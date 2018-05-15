@@ -3,9 +3,11 @@ using HutongGames.PlayMaker.Actions;
 using static FsmUtil.FsmUtil;
 using UnityEngine;
 using System;
+using ModCommon;
 using HutongGames.PlayMaker;
+using infinitegrimm;
 
-namespace GrimmChildUpgrades
+namespace GrimmchildUpgrades
 {
     class GrimmChild : MonoBehaviour
     {
@@ -15,7 +17,28 @@ namespace GrimmChildUpgrades
         public SetFloatValue fValue;
         public bool done;
 
+        private float baseSpeed;
+        private float baseFBSpeed;
+        private float baseRange;
+
+
+        public int IGMaxDamage;
+        public int powerLevel;
+
+        // these are variables someone can set in the
+        // config file
         public static double speedModifier;
+        public static double rangeModifier;
+        public static double FBSpeedModifier;
+
+        public static int maxDamage;
+        public static int notchesCost;
+
+        public static float volumeMod;
+        public static float filterRed;
+        public static float filterGreen;
+        public static float filterBlue;
+        public static float filterAlpha;
 
         public readonly string[] speedanimations = { "Idle 4", "Antic 4", "Shoot 4" };
 
@@ -30,13 +53,14 @@ namespace GrimmChildUpgrades
 
         public void Start()
         {
+            baseSpeed = -5.0f;
             ModHooks.Instance.BeforeSceneLoadHook += reset;
         }
 
         private string reset(string sceneName)
         {
             done = false;
-            Modding.Logger.Log("Reset Scene");
+            getIGDamage();
             return sceneName;
         }
 
@@ -53,12 +77,24 @@ namespace GrimmChildUpgrades
                 return;
             }
 
-            Log("Found GrimmChild");
+            Log("Loaded Grimmchild");
+
+
 
             gcFSM = FSMUtility.LocateFSM(grimmchild, "Control");
 
-            Log("GrimmRange is " + gcFSM.FsmVariables.GetFsmInt("GrimmEnemyRange"));
-            Log("Attack Timer is " + gcFSM.FsmVariables.GetFsmInt("Attack Timer"));
+            //gcFSM.FsmVariables.GetFsmInt("Attack Timer") = 5;
+
+            GameObject gcRangeObj = grimmchild.FindGameObjectInChildren("Enemy Range");
+            CircleCollider2D gcRange = gcRangeObj.GetComponent<CircleCollider2D>();
+
+            // 7.81???
+            //Log("GrimmRange is " + gcRange.radius );
+
+            // 0.3763812
+            //Log("Attack Timer is " + gcFSM.FsmVariables.GetFsmFloat("Attack Timer"));
+
+
 
             ///////////////////////////////////////////////////////////////////
             // This doesn't work, attempted to extend enemy range
@@ -75,21 +111,70 @@ namespace GrimmChildUpgrades
 
             //}
 
-            ChangeTransition(gcFSM, "Shoot", "FINISHED", "Check For Target");
-            ChangeTransition(gcFSM, "Shoot", "CANCEL", "Check For Target");
-
+            //ChangeTransition(gcFSM, "Shoot", "FINISHED", "Check For Target");
+            //ChangeTransition(gcFSM, "Shoot", "CANCEL", "Check For Target");
             done = true;
             Log("Done.");
         }
 
         public void Log(String str)
         {
-            Modding.Logger.Log("[GMG] " + str);
+            Modding.Logger.Log("[GrimmchildUpgrades] " + str);
         }
 
         public void OnDestroy()
         {
             ModHooks.Instance.BeforeSceneLoadHook -= reset;
         }
+
+        public void getIGDamage()
+        {
+            if (GrimmchildUpgrades.usingIG)
+            {
+                try
+                {
+                    IGMaxDamage = InfiniteGlobalVars.maximumDamage;
+                }
+                catch
+                {
+                    IGMaxDamage = 100000;
+                    Log("Unable to load infinite Grimm damage. Is Infinite Grimm up to date?");
+                    powerLevel = 6;
+                    return;
+                }
+            }
+            else
+            {
+                IGMaxDamage = 100000;
+                powerLevel = 6;
+                return;
+            }
+
+            if (IGMaxDamage < 2000)
+            {
+                powerLevel = 1;
+            }
+            else if (IGMaxDamage < 4000)
+            {
+                powerLevel = 2;
+            }
+            else if (IGMaxDamage < 6000)
+            {
+                powerLevel = 3;
+            }
+            else if (IGMaxDamage < 10000)
+            {
+                powerLevel = 4;
+            }
+            else if (IGMaxDamage < 15000)
+            {
+                powerLevel = 5;
+            }
+            else
+            {
+                powerLevel = 6;
+            }
+        }
+
     }
 }
