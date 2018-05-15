@@ -51,6 +51,8 @@
     <Compile Include="FsmUtil.cs" />
     <Compile Include="Grimmchild Upgrades.cs" />
     <Compile Include="Grimmchild.cs" />
+    <Compile Include="GrimmchildSettings.cs" />
+    <Compile Include="PlayMakerFSMExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
