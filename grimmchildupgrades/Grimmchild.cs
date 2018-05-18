@@ -7,16 +7,21 @@ using ModCommon;
 using HutongGames.PlayMaker;
 using infinitegrimm;
 using RandomizerMod.Extensions;
+using UnityEngine.SceneManagement;
 
 namespace GrimmchildUpgrades
 {
     class GrimmChild : MonoBehaviour
     {
         public GameObject grimmchild;
+        
+
         public PlayMakerFSM gcFSM;
         public Wait IdleAction;
         public SetFloatValue fValue;
         public bool done;
+        public bool done2;
+        public bool done3;
 
         private float baseFireInterval;
         private float baseFBSpeed;
@@ -30,7 +35,9 @@ namespace GrimmchildUpgrades
         // config file
         public static double speedModifier = 3.0f;
         public static double rangeModifier = 2.0f;
-        public static double FBSpeedModifier = 1.5f;
+        public static double FBSpeedModifier = 0.5f;
+
+        public static bool ghostBall = true;
 
         public static int maxDamage;
         public static int notchesCost;
@@ -40,6 +47,10 @@ namespace GrimmchildUpgrades
         public static float filterGreen;
         public static float filterBlue;
         public static float filterAlpha;
+
+        public int shitUpdateTimer;
+
+        
 
         public readonly string[] speedanimations = { "Idle 4", "Antic 4", "Shoot 4" };
 
@@ -54,28 +65,41 @@ namespace GrimmchildUpgrades
 
         public void Start()
         {
+            done2 = false;
+            shitUpdateTimer = 0;
             baseFireInterval = -5.0f;
-            ModHooks.Instance.BeforeSceneLoadHook += reset;
+
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
+            //ModHooks.Instance. += grimmballDetect;
         }
 
-        private string reset(string sceneName)
+        private void reset(Scene from, Scene to)
         {
             done = false;
+            grimmchild = null;
+            shitUpdateTimer = 0;
             getIGDamage();
-            return sceneName;
         }
+
+        private HitInstance grimmballDetect(Fsm owner, HitInstance hit)
+        {
+            Log(" owner is: " + owner.Name + " and the hit instance type is: " + hit.AttackType);
+
+
+
+            return hit;
+        }
+        
 
         public void Update()
         {
 
-
-            if (done && grimmchild != null)
+            if (done)
             {
-                //Log("Your attack timer value is: " + FSMUtility.LocateFSM(grimmchild, "Control").FsmVariables.GetFsmFloat("Attack Timer").Value);
-
                 return;
             }
 
+            
             grimmchild = GameObject.FindGameObjectWithTag("Grimmchild");
             if (grimmchild == null)
             {
@@ -89,8 +113,7 @@ namespace GrimmchildUpgrades
             {
                 Log("Set default values for speeds");
                 setDefaultGCValues();
-            }            
-            
+            }
             
             FsmState followState = gcFSM.GetState("Follow");
             FloatCompare[] followCompare = followState.GetActionsOfType<FloatCompare>();
@@ -111,12 +134,55 @@ namespace GrimmchildUpgrades
             gcFSM.FsmVariables.GetFsmFloat("Flameball Speed").Value = (float) (baseFBSpeed * FBSpeedModifier);
             grimmchild.FindGameObjectInChildren("Enemy Range").GetComponent<CircleCollider2D>().radius = (float) (baseRange * rangeModifier);
 
-            Vector3 fbSize = new Vector3(3f, 3f, 3f);
+
+
+            FsmState shootYouFool = gcFSM.GetState("Shoot");
+
+            Log("Did important stuff");
+
+            SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
+            try
+            {
+                GrimmballFireReal.shootSpawner = spawnObjs[0];
+                shootYouFool.RemoveActionsOfType<SpawnObjectFromGlobalPool>();
+            }
+            catch
+            {
+                Log("Not removing shoot spawner, probs because it's length is: " + spawnObjs.Length);
+            }
+
+            Log("Removed spawnobject methods");
+
+            CallMethodProper[] currentMethods = shootYouFool.GetActionsOfType<CallMethodProper>();
+
+            if (currentMethods.Length == 0)
+            {
+                CallMethodProper newDankShootMethod = new CallMethodProper { };
+                try
+                {
+                    newDankShootMethod.behaviour = new FsmString();
+                    newDankShootMethod.behaviour.Value = "GrimmballFireReal";
+                    newDankShootMethod.methodName = new FsmString();
+                    newDankShootMethod.methodName.Value = "GrimmballUpdater";
+                } catch (Exception e)
+                {
+                    Log("Unable to add method: error " + e);
+                }
+                Log("Made custom call method proper");
+                shootYouFool.AddAction(newDankShootMethod);
+            } else
+            {
+                Log("Custom call method proper already made.");
+            }
+
+            //GrimmballFireReal.
+
+
+
+
+
             //grimmchild.FindGameObjectInChildren("Flame Point").transform.localScale = fbSize;
 
-            //FsmState shootYouFool = gcFSM.GetState("Shoot");
-            //SetScale bigBalls = new SetScale();
-            //SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
 
 
             //bigBalls.vector = fbSize;
@@ -165,7 +231,7 @@ namespace GrimmchildUpgrades
 
         public void OnDestroy()
         {
-            ModHooks.Instance.BeforeSceneLoadHook -= reset;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= reset;
         }
 
         public void getIGDamage()

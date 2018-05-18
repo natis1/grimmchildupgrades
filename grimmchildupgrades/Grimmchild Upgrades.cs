@@ -53,6 +53,9 @@ namespace GrimmchildUpgrades
         private void AddComponent()
         {
             GameManager.instance.gameObject.AddComponent<GrimmChild>();
+            GameManager.instance.gameObject.AddComponent<GrimmballFireReal>();
+
+            
         }
 
         public override int LoadPriority()

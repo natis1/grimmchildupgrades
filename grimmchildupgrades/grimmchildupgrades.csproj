@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FsmUtil.cs" />
+    <Compile Include="GrimmballFireReal.cs" />
     <Compile Include="Grimmchild Upgrades.cs" />
     <Compile Include="Grimmchild.cs" />
     <Compile Include="GrimmchildSettings.cs" />
