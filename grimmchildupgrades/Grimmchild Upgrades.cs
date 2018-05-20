@@ -46,6 +46,9 @@ namespace GrimmchildUpgrades
             {
                 Log("Thank you, infinite Grimm. Always great seeing you!");
                 usingIG = true;
+            } else
+            {
+                usingIG = false;
             }
             GrimmChild.ballSizeCFG = GlobalSettings.maxBallSize;
             GrimmChild.FBSpeedModifierCFG = GlobalSettings.maxBallMoveSpeed;
