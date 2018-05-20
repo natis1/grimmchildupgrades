@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Modding;
-using infinitegrimm;
+using UnityEngine;
+using System.IO;
 
 namespace GrimmchildUpgrades
 {
@@ -35,6 +34,10 @@ namespace GrimmchildUpgrades
 
         public override void Initialize()
         {
+
+            SetupSettings();
+
+
             IGAvailable = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "infinitegrimm" select type).Any();
             if (IGAvailable && GlobalSettings.infiniteGrimmIntegration)
             {
@@ -58,6 +61,30 @@ namespace GrimmchildUpgrades
 
             ModHooks.Instance.AfterSavegameLoadHook += SaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
+
+            ModHooks.Instance.ApplicationQuitHook += SaveGlobalSettings;
+        }
+
+        void SetupSettings()
+        {
+            string settingsFilePath = Application.persistentDataPath + ModHooks.PathSeperator + GetType().Name + ".GlobalSettings.json";
+
+            bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.SettingsVersion != VersionInfo.SettingsVer);
+
+            if (forceReloadGlobalSettings || !File.Exists(settingsFilePath))
+            {
+                if (forceReloadGlobalSettings)
+                {
+                    Log("Settings outdated! Rebuilding.");
+                }
+                else
+                {
+                    Log("Settings not found, rebuilding... File will be saved to: " + settingsFilePath);
+                }
+
+                GlobalSettings.Reset();
+            }
+            SaveGlobalSettings();
         }
 
         private void SaveGame(SaveGameData data)
@@ -80,7 +107,7 @@ namespace GrimmchildUpgrades
 
         public void Unload()
         {
-            Log("Disabling! If you see any more messages by this mod please report as an issue.");
+            Log("Disabling! If you see any more non-settings messages by this mod please report as an issue.");
             ModHooks.Instance.AfterSavegameLoadHook -= SaveGame;
             ModHooks.Instance.NewGameHook -= AddComponent;
         }

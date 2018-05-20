@@ -1,6 +1,5 @@
 ﻿using Modding;
 using HutongGames.PlayMaker.Actions;
-using static FsmUtil.FsmUtil;
 using UnityEngine;
 using System;
 using ModCommon;
@@ -75,33 +74,53 @@ namespace GrimmchildUpgrades
 
         public void Start()
         {
+            powerLevel = -1;
             done = false;
             baseFireInterval = -5.0f;
 
-            PlayerData.instance.charmCost_40 = notchesCost;
+            
 
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
+            ModHooks.Instance.CharmUpdateHook += addCharms;
+        }
+
+        private void addCharms(PlayerData data, HeroController controller)
+        {
+            done = false;
         }
 
         private void reset(Scene from, Scene to)
         {
-
-            int oldPower = powerLevel;
-            getIGDamage();
-
-            if (oldPower != powerLevel)
-                calulateRealMods();
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
+            {
+                int oldPower = powerLevel;
+                getIGDamage();
+                if (oldPower != powerLevel)
+                {
+                    calulateRealMods();
+                    done = false;
+                    PlayerData.instance.charmCost_40 = notchesCost;
+                    PlayerData.instance.CalculateNotchesUsed();
+                }
+            }
         }
 
         public void Update()
         {
-
             if (done)
             {
                 return;
             }
 
-            
+            // skip it if they aren't even at tier 4 grimmchild yet. or if they're especially dumb and
+            // banished grimm
+            if (!PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
+            {
+                done = true;
+                return;
+            }
+
+
             grimmchild = GameObject.FindGameObjectWithTag("Grimmchild");
             if (grimmchild == null)
             {
@@ -297,6 +316,7 @@ namespace GrimmchildUpgrades
 
         public void calulateRealMods()
         {
+            Log("Current power level is " + powerLevel);
             int truePower = powerLevel - 1;
             speedModifier = (1.0 - speedModAvgVec[truePower]) + (speedModifierCFG * speedModAvgVec[truePower]);
             rangeModifier = (1.0 - rangeModAvgVec[truePower]) + (rangeModifierCFG * rangeModAvgVec[truePower]);
@@ -309,6 +329,14 @@ namespace GrimmchildUpgrades
             } else
             {
                 ghostBall = ghostBallCFG;
+            }
+
+            if (powerLevel < 6 && notchesCostCFG >= notchesCostVec[truePower])
+            {
+                notchesCost = notchesCostVec[truePower];
+            } else
+            {
+                notchesCost = notchesCostCFG;
             }
 
 
