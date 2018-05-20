@@ -24,7 +24,6 @@ namespace GrimmchildUpgrades
 
         public void Start()
         {
-            ghostBalls = true;
             Log("Added custom fireball component");
         }
 
@@ -39,10 +38,8 @@ namespace GrimmchildUpgrades
 
 
                 customGrimmball.transform.position = grimmchild.transform.position;
-                Log("Stage 1 set");
                 PlayMakerFSM customGrimmballControl = FSMUtility.LocateFSM(customGrimmball, "Control");
                 CircleCollider2D grimmballHitbox = customGrimmball.GetComponent<CircleCollider2D>();
-                Vector3 grimmballRealSize = new Vector3(9f, 9f, 9f);
 
                 
                 //customGrimmball.d
@@ -53,7 +50,6 @@ namespace GrimmchildUpgrades
                 //grimmPhysics.
                 //Destroy(grimmPhysics);
 
-                customGrimmball.transform.localScale = grimmballRealSize;
                 grimmballHitbox.radius = 1.1f;
 
                 SetScale realSize = customGrimmballControl.GetState("Init").GetActionsOfType<SetScale>()[0];
@@ -72,25 +68,7 @@ namespace GrimmchildUpgrades
                 FsmState inv = hitboxControl.GetState("Invincible?");
 
                 hitboxControl.FsmVariables.FindFsmInt("Damage").Value = damage;
-                
-                Fsm innerFSM = (Fsm)customGrimmballControl.GetType().GetField("fsm", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(customGrimmballControl);
-
-                FsmState[] grimmballCtrlStates = new FsmState[innerFSM.States.Length + 1];
-                for (int i = 0; i < innerFSM.States.Length; i++)
-                {
-                    grimmballCtrlStates[i] = innerFSM.States[i];
-                }
-                FsmState newState = new FsmState(grimmballCtrlStates[2]);
-                newState.Name = "HitDetect";
-                newState.RemoveActionsOfType<SetIsKinematic2d>();
-                newState.RemoveActionsOfType<RecycleSelf>();
-
-                grimmballCtrlStates[grimmballCtrlStates.Length - 1] = newState;
-                
-
-
-                innerFSM.GetType().GetField("states", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(innerFSM, grimmballCtrlStates);
-                
+               
 
                 if (ghostBalls)
                 {

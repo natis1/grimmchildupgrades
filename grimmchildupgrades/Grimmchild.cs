@@ -236,6 +236,7 @@ namespace GrimmchildUpgrades
                 shootYouFool.RemoveActionsOfType<FireAtTarget>();
                 GrimmballFireReal.oldAttack = currentFAT;
 
+                currentFAT.spread = 0.0f;
                 
 
                 GetChild currentGetChild = shootYouFool.GetActionsOfType<GetChild>()[0];
