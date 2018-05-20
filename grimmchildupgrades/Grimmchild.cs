@@ -80,7 +80,7 @@ namespace GrimmchildUpgrades
             calulateRealMods();
 
 
-            if (PlayerData.instance.charmCost_40 != notchesCost)
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm") && PlayerData.instance.charmCost_40 != notchesCost)
             {
                 PlayerData.instance.charmCost_40 = notchesCost;
                 PlayerData.instance.CalculateNotchesUsed();
