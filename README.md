@@ -11,6 +11,8 @@ Hate grimmchild? Well you will love the new one who is:
 * Fires larger fireballs far more accurately, which can travel through the ground.
 * ...But costs more notches
 
+How much better is the new grimmchild anyway? [stats.md explains it](stats.md).
+
 Other features:
 
 * Optional Infinite Grimm integration- The better you do, the stronger your grimmchild will become.
