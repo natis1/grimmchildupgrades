@@ -29,7 +29,7 @@ So first install these from either github or the google drive.
 
 Then download or compile the Grimmchild Upgrades dll from the "releases" section.
 
-It is highly recommended you install this mod alongside [Infinite Grimm](https://github.com/natis1/infinitegrimm):
+It is highly recommended you install this mod alongside [Infinite Grimm](https://github.com/natis1/infinitegrimm)
 
 ---
 
