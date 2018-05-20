@@ -1,6 +1,6 @@
 ## How much stronger is grimmchild anyway?
 
-Well this may be a silly question since this mod is designed to let you choose the strength. But, of course, like any good mod, it does have
+Well this may be a silly question since this mod is designed to let you choose the strength. But, of course, like any mod, it does have
 some defaults set.
 
 These are all relative to their default values
