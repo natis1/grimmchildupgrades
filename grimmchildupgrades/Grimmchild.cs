@@ -57,7 +57,7 @@ namespace GrimmchildUpgrades
 
         public int maxDamage;
 
-        public float ballSize = 2f;
+        public float ballSize;
 
 
         //take the weighted average of the original and modified speed where weighting based on vector
