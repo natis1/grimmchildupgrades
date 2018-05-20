@@ -7,7 +7,7 @@ using infinitegrimm;
 
 namespace GrimmchildUpgrades
 {
-    public class GrimmchildUpgrades : Mod
+    public class GrimmchildUpgrades : Mod <GrimmchildSettings, GrimmchildGlobalSettings>, ITogglableMod
     {
 
         public static string version = "0.1";
@@ -36,11 +36,26 @@ namespace GrimmchildUpgrades
         public override void Initialize()
         {
             IGAvailable = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "infinitegrimm" select type).Any();
-            if (IGAvailable)
+            if (IGAvailable && GlobalSettings.infiniteGrimmIntegration)
             {
                 Log("Thank you, infinite Grimm. Always great seeing you!");
                 usingIG = true;
             }
+            GrimmChild.ballSizeCFG = GlobalSettings.maxBallSize;
+            GrimmChild.FBSpeedModifierCFG = GlobalSettings.maxBallMoveSpeed;
+            GrimmChild.maxDamageCFG = GlobalSettings.maxDamage;
+            GrimmChild.notchesCostCFG = GlobalSettings.notchesCost;
+            GrimmChild.usingIG = usingIG;
+            GrimmChild.volumeMod = GlobalSettings.volumeMultiplier;
+            GrimmChild.filterAlpha = GlobalSettings.colorAlpha;
+            GrimmChild.filterBlue = GlobalSettings.colorBlue;
+            GrimmChild.filterGreen = GlobalSettings.colorGreen;
+            GrimmChild.filterRed = GlobalSettings.colorRed;
+            GrimmChild.ghostBallCFG = GlobalSettings.ghostBalls;
+            GrimmChild.rangeModifierCFG = GlobalSettings.maxRangeMult;
+            GrimmChild.speedModifierCFG = GlobalSettings.maxAttackSpeedMult;
+
+
             ModHooks.Instance.AfterSavegameLoadHook += SaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
         }
@@ -63,5 +78,11 @@ namespace GrimmchildUpgrades
             return loadOrder;
         }
 
+        public void Unload()
+        {
+            Log("Disabling! If you see any more messages by this mod please report as an issue.");
+            ModHooks.Instance.AfterSavegameLoadHook -= SaveGame;
+            ModHooks.Instance.NewGameHook -= AddComponent;
+        }
     }
 }

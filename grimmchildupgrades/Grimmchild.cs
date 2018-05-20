@@ -14,14 +14,9 @@ namespace GrimmchildUpgrades
     class GrimmChild : MonoBehaviour
     {
         public GameObject grimmchild;
-        
 
         public PlayMakerFSM gcFSM;
-        public Wait IdleAction;
-        public SetFloatValue fValue;
         public bool done;
-        public bool done2;
-        public bool done3;
 
         private float baseFireInterval;
         private float baseFBSpeed;
@@ -33,63 +28,70 @@ namespace GrimmchildUpgrades
 
         // these are variables someone can set in the
         // config file
-        public static double speedModifier = 3.0f;
-        public static double rangeModifier = 2.0f;
-        public static double FBSpeedModifier = 0.5f;
+        public static double speedModifierCFG;
+        public static double rangeModifierCFG;
+        public static double FBSpeedModifierCFG;
 
-        public static bool ghostBall = true;
 
-        public static int maxDamage;
-        public static int notchesCost;
+        public static bool ghostBallCFG;
 
+        public static int maxDamageCFG;
+        public static int notchesCostCFG;
+
+        public static float ballSizeCFG;
         public static float volumeMod;
         public static float filterRed;
         public static float filterGreen;
         public static float filterBlue;
         public static float filterAlpha;
 
-        public int shitUpdateTimer;
+        public static bool usingIG;
 
+
+        // These are the variables used in the game, modified from the cfg ones by the vectors below.
+        public double speedModifier;
+        public double rangeModifier;
+        public double FBSpeedModifier;
+        public int notchesCost;
+
+        public bool ghostBall;
+
+        public int maxDamage;
+
+        public float ballSize = 2f;
+
+
+        //take the weighted average of the original and modified speed where weighting based on vector
+        public readonly double[] speedModAvgVec = { 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
+        public readonly double[] rangeModAvgVec = { 0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+        public readonly double[] fbSpeedModAvgVec = { 0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+        public readonly double[] maxDmgModAvgVec = { 0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+        public readonly double[] ballSizeModAvgVec = { 0.1, 0.3, 0.5, 0.7, 0.85, 1.0 };
+        public readonly int[] notchesCostVec = { 3, 4, 5, 6, 6, 6 };
+        public readonly bool[] useGhostBall = { false, false, false, true, true, true };
         
 
         public readonly string[] speedanimations = { "Idle 4", "Antic 4", "Shoot 4" };
 
-        public readonly string[] waitstates = { "Follow" };
-        public readonly float[] waitstateTimes = { 0.25f };
-
-
-        // animations: Idle 4, Antic 4, Shoot 4
-        // wait states: Follow (0.25)
-
-        // fsm variables: Attack Timer 1.482669
-
         public void Start()
         {
-            done2 = false;
-            shitUpdateTimer = 0;
+            done = false;
             baseFireInterval = -5.0f;
 
+            PlayerData.instance.charmCost_40 = notchesCost;
+
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
-            //ModHooks.Instance. += grimmballDetect;
         }
 
         private void reset(Scene from, Scene to)
         {
-            done = false;
-            grimmchild = null;
-            shitUpdateTimer = 0;
+
+            int oldPower = powerLevel;
             getIGDamage();
+
+            if (oldPower != powerLevel)
+                calulateRealMods();
         }
-
-        private HitInstance grimmballDetect(Fsm owner, HitInstance hit)
-        {
-            Log(" owner is: " + owner.Name + " and the hit instance type is: " + hit.AttackType);
-
-
-
-            return hit;
-        }
-        
 
         public void Update()
         {
@@ -121,6 +123,8 @@ namespace GrimmchildUpgrades
             
             followCompare[1].float2 = .5f;
 
+            followState.RemoveActionsOfType<Wait>();
+
             FsmState anticAttack = gcFSM.GetState("Antic");
             RandomFloat[] anticRand = anticAttack.GetActionsOfType<RandomFloat>();
 
@@ -129,96 +133,104 @@ namespace GrimmchildUpgrades
 
             FsmState noTarget = gcFSM.GetState("No Target");
             SetFloatValue[] noTargetWait = noTarget.GetActionsOfType<SetFloatValue>();
-            noTargetWait[0].floatValue = (float)(baseFireInterval / (speedModifier) );
+            noTargetWait[0].floatValue = (float)(baseFireInterval / (speedModifier * 2) );
 
             gcFSM.FsmVariables.GetFsmFloat("Flameball Speed").Value = (float) (baseFBSpeed * FBSpeedModifier);
             grimmchild.FindGameObjectInChildren("Enemy Range").GetComponent<CircleCollider2D>().radius = (float) (baseRange * rangeModifier);
 
+            
+
+
+            tk2dSprite grimmSprite = grimmchild.GetComponent<tk2dSprite>();
+            Color grimmColor = grimmSprite.color;
+            
+            grimmColor.a = filterAlpha;
+            grimmColor.b = filterBlue;
+            grimmColor.g = filterGreen;
+            grimmColor.r = filterRed;
+            grimmSprite.color = grimmColor;
+
 
 
             FsmState shootYouFool = gcFSM.GetState("Shoot");
+            GrimmballFireReal.grimmchild = grimmchild;
+            GrimmballFireReal.shootState = shootYouFool;
+            GrimmballFireReal.ballSize = ballSize;
+            GrimmballFireReal.damage = maxDamage;
+            GrimmballFireReal.ghostBalls = ghostBall;
 
-            Log("Did important stuff");
 
-            SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
-            try
-            {
-                GrimmballFireReal.shootSpawner = spawnObjs[0];
-                shootYouFool.RemoveActionsOfType<SpawnObjectFromGlobalPool>();
-            }
-            catch
-            {
-                Log("Not removing shoot spawner, probs because it's length is: " + spawnObjs.Length);
-            }
-
-            Log("Removed spawnobject methods");
-
-            CallMethodProper[] currentMethods = shootYouFool.GetActionsOfType<CallMethodProper>();
+            CallMethod[] currentMethods = shootYouFool.GetActionsOfType<CallMethod>();
 
             if (currentMethods.Length == 0)
             {
-                CallMethodProper newDankShootMethod = new CallMethodProper { };
+
+                SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
                 try
                 {
-                    newDankShootMethod.behaviour = new FsmString();
-                    newDankShootMethod.behaviour.Value = "GrimmballFireReal";
-                    newDankShootMethod.methodName = new FsmString();
-                    newDankShootMethod.methodName.Value = "GrimmballUpdater";
+                    GrimmballFireReal.deadShootSpawner = spawnObjs[0];
+                    shootYouFool.RemoveActionsOfType<SpawnObjectFromGlobalPool>();
+                }
+                catch
+                {
+                    Log("Not removing shoot spawner, probs because it's length is: " + spawnObjs.Length);
+                }
+
+
+                CallMethod newDankShootMethod = new CallMethod { };
+                try
+                {
+                    newDankShootMethod.behaviour = GameManager.instance.gameObject.GetComponent<GrimmballFireReal>();
+                    newDankShootMethod.methodName = "GrimmballUpdater";
+                    newDankShootMethod.parameters = new FsmVar[0];
+                    newDankShootMethod.everyFrame = false;
                 } catch (Exception e)
                 {
                     Log("Unable to add method: error " + e);
                 }
-                Log("Made custom call method proper");
+                Log("Made custom call method");
                 shootYouFool.AddAction(newDankShootMethod);
+                
+                
+                FireAtTarget currentFAT = shootYouFool.GetActionsOfType<FireAtTarget>()[0];
+                shootYouFool.RemoveActionsOfType<FireAtTarget>();
+                GrimmballFireReal.oldAttack = currentFAT;
+
+                
+
+                GetChild currentGetChild = shootYouFool.GetActionsOfType<GetChild>()[0];
+                shootYouFool.RemoveActionsOfType<GetChild>();
+                currentGetChild.childName = "Grimmball(Clone)";
+
+                SetFsmInt currentSetFSMInt = shootYouFool.GetActionsOfType<SetFsmInt>()[0];
+                shootYouFool.RemoveActionsOfType<SetFsmInt>();
+
+                // Reorder these things to make sense
+                shootYouFool.AddAction(currentGetChild);
+                shootYouFool.AddAction(currentSetFSMInt);
+                shootYouFool.AddAction(currentFAT);
+
+                GameObject gcRangeObj = grimmchild.FindGameObjectInChildren("Enemy Range");
+                //GrimmEnemyRange rangeDelete = gcRangeObj.GetComponent<GrimmEnemyRange>();
+                //Destroy(rangeDelete);
+                gcRangeObj.AddComponent<GrimmballFireReal>();
+
+                FsmState targetScan = gcFSM.GetState("Check For Target");
+                CallMethodProper rangeDetect = targetScan.GetActionsOfType<CallMethodProper>()[0];
+                rangeDetect.methodName.Value = "GetTarget";
+                rangeDetect.behaviour.Value = "GrimmballFireReal";
+
+                setVolumeLevels();
+
+
             } else
             {
                 Log("Custom call method proper already made.");
             }
-
-            //GrimmballFireReal.
-
-
-
-
-
-            //grimmchild.FindGameObjectInChildren("Flame Point").transform.localScale = fbSize;
-
-
-
-            //bigBalls.vector = fbSize;
-            //bigBalls.Fsm = FSMUtility.LocateFSM(spawnObjs[0]., "Control");
-
-            //FireAtTarget[] oldFire = shootYouFool.GetActionsOfType<FireAtTarget>();
-
-            //shootYouFool.RemoveActionsOfType<FireAtTarget>();
-
-
-            //SpawnObjectFromGlobalPool newShot = new SpawnObjectFromGlobalPool();
-
-            //SpawnObjectFromGlobalPool[] spawnObjs = shootYouFool.GetActionsOfType<SpawnObjectFromGlobalPool>();
-            //spawnObjs[0].
-
-            /*
-            FsmState waitState2 = gcFSM.GetState("Pause");
-            SetFloatValue[] waitFloat2 = waitState1.GetActionsOfType<SetFloatValue>();
-            waitFloat2[0].floatVariable = (float)(baseFireInterval / speedModifier);
             
-            FsmState waitState3 = gcFSM.GetState("Spawn");
-            SetFloatValue[] waitFloat3 = waitState1.GetActionsOfType<SetFloatValue>();
-            waitFloat3[0].floatVariable = (float)(baseFireInterval / speedModifier);
+            gcFSM.SetState("Init");
 
-            FsmState waitState4 = gcFSM.GetState("Lv 1");
-            SetFloatValue[] waitFloat4 = waitState1.GetActionsOfType<SetFloatValue>();
-            waitFloat4[0].floatVariable = (float)(baseFireInterval / speedModifier);
-            */
-            //GameObject gcRangeObj = grimmchild.FindGameObjectInChildren("Enemy Range");
-            //CircleCollider2D gcRange = gcRangeObj.GetComponent<CircleCollider2D>();
-
-            // 7.81???
-            //Log("GrimmRange is " + gcRange.radius );
-
-            // 0.3763812
-            //Log("Attack Timer is " + gcFSM.FsmVariables.GetFsmFloat("Attack Timer"));
+            //grimmchild.PrintSceneHierarchyTree("modgrimmchild.txt");
 
             done = true;
             Log("Done.");
@@ -283,16 +295,74 @@ namespace GrimmchildUpgrades
             }
         }
 
+        public void calulateRealMods()
+        {
+            int truePower = powerLevel - 1;
+            speedModifier = (1.0 - speedModAvgVec[truePower]) + (speedModifierCFG * speedModAvgVec[truePower]);
+            rangeModifier = (1.0 - rangeModAvgVec[truePower]) + (rangeModifierCFG * rangeModAvgVec[truePower]);
+            FBSpeedModifier = (1.0 - fbSpeedModAvgVec[truePower]) + (FBSpeedModifierCFG * fbSpeedModAvgVec[truePower]);
+            ballSize = (float) ( (1.0 - ballSizeModAvgVec[truePower]) + (ballSizeCFG * ballSizeModAvgVec[truePower]));
+            maxDamage = (int)((11.0 - 11.0 * maxDmgModAvgVec[truePower]) + ((float)maxDamageCFG * maxDmgModAvgVec[truePower]));
+            if (powerLevel < 6 && ghostBallCFG)
+            {
+                ghostBall = useGhostBall[truePower];
+            } else
+            {
+                ghostBall = ghostBallCFG;
+            }
+
+
+        }
+
         public void setDefaultGCValues()
         {
             GameObject gcRangeObj = grimmchild.FindGameObjectInChildren("Enemy Range");
             CircleCollider2D gcRange = gcRangeObj.GetComponent<CircleCollider2D>();
             baseRange = gcRange.radius;
-            //baseFireInterval = gcFSM.FsmVariables.GetFsmFloat("Attack Timer").Value;
             baseFireInterval = 1.5f;
             baseFBSpeed = gcFSM.FsmVariables.GetFsmFloat("Flameball Speed").Value;
+            
+        }
 
-            Log("base range: " + baseRange + " base fire interval: " + baseFireInterval + " base FB speed : " + baseFBSpeed);
+        public void setVolumeLevels()
+        {
+            FsmState[] statesWithAudio = new FsmState[9];
+            statesWithAudio[0] = gcFSM.GetState("Spawn");
+            statesWithAudio[1] = gcFSM.GetState("Follow");
+            statesWithAudio[2] = gcFSM.GetState("Tele Start");
+            statesWithAudio[3] = gcFSM.GetState("Warp Out");
+            statesWithAudio[4] = gcFSM.GetState("Tele");
+            statesWithAudio[5] = gcFSM.GetState("Despawn");
+            statesWithAudio[6] = gcFSM.GetState("Antic");
+            statesWithAudio[7] = gcFSM.GetState("Shoot");
+            statesWithAudio[8] = gcFSM.GetState("Audio");
+
+            for (int j = 0; j < statesWithAudio.Length; j++)
+            {
+                AudioPlayerOneShotSingle[] audioType1 = statesWithAudio[j].GetActionsOfType<AudioPlayerOneShotSingle>();
+                AudioPlayerOneShot[] audioType2 = statesWithAudio[j].GetActionsOfType<AudioPlayerOneShot>();
+                AudioPlaySimple[] audioType3 = statesWithAudio[j].GetActionsOfType<AudioPlaySimple>();
+                AudioPlay[] audioType4 = statesWithAudio[j].GetActionsOfType<AudioPlay>();
+                
+                for (int i = 0; i < audioType1.Length; i++)
+                {
+                    audioType1[i].volume.Value = volumeMod;
+                }
+                for (int i = 0; i < audioType2.Length; i++)
+                {
+                    audioType2[i].volume.Value = volumeMod;
+                }
+                for (int i = 0; i < audioType3.Length; i++)
+                {
+                    audioType3[i].volume.Value = volumeMod;
+                }
+                for (int i = 0; i < audioType4.Length; i++)
+                {
+                    audioType4[i].volume.Value = volumeMod;
+                }
+
+
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ namespace GrimmchildUpgrades
 {
     public class VersionInfo
     {
-        readonly public static int SettingsVer = 1;
+        readonly public static int SettingsVer = 2;
     }
 
     public class GrimmchildGlobalSettings : IModSettings
@@ -19,13 +19,15 @@ namespace GrimmchildUpgrades
             StringValues.Clear();
 
             infiniteGrimmIntegration = true;
+            ghostBalls = true;
 
-            maxAttackSpeedMult = 3.0f;
+            maxAttackSpeedMult = 2.0f;
             maxRangeMult = 2.0f;
-            maxFBMoveSpeed = 3.0f;
+            maxBallMoveSpeed = 1.5f;
+            maxBallSize = 2.0f;
 
-            maxDamage = 20;
-            notchesCost = 4;
+            maxDamage = 35;
+            notchesCost = 6;
 
             volumeMultiplier = 0.6f;
 
@@ -39,9 +41,11 @@ namespace GrimmchildUpgrades
         public int SettingsVersion { get => GetInt(); set => SetInt(value); }
 
         public bool infiniteGrimmIntegration { get => GetBool(); set => SetBool(value); }
+        public bool ghostBalls { get => GetBool(); set => SetBool(value); }
         public float maxAttackSpeedMult { get => GetFloat(); set => SetFloat(value); }
-        public float maxFBMoveSpeed { get => GetFloat(); set => SetFloat(value); }
+        public float maxBallMoveSpeed { get => GetFloat(); set => SetFloat(value); }
         public float maxRangeMult { get => GetFloat(); set => SetFloat(value); }
+        public float maxBallSize { get => GetFloat(); set => SetFloat(value); }
 
         public int maxDamage { get => GetInt(); set => SetInt(value); }
         public int notchesCost { get => GetInt(); set => SetInt(value); }
@@ -52,8 +56,6 @@ namespace GrimmchildUpgrades
         public float colorGreen { get => GetFloat(); set => SetFloat(value); }
         public float colorBlue { get => GetFloat(); set => SetFloat(value); }
         public float colorAlpha { get => GetFloat(); set => SetFloat(value); }
-
-        public bool HardMode { get => GetBool(); set => SetBool(value); }
     }
 
 
