@@ -74,11 +74,22 @@ namespace GrimmchildUpgrades
 
         public void Start()
         {
-            powerLevel = -1;
             done = false;
             baseFireInterval = -5.0f;
+            getIGDamage();
+            calulateRealMods();
 
-            
+
+            if (PlayerData.instance.charmCost_40 != notchesCost)
+            {
+                PlayerData.instance.charmCost_40 = notchesCost;
+                PlayerData.instance.CalculateNotchesUsed();
+
+                if (PlayerData.instance.equippedCharm_40)
+                {
+                    PlayerData.instance.overcharmed = true;
+                }
+            }            
 
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
             ModHooks.Instance.CharmUpdateHook += addCharms;
@@ -99,8 +110,18 @@ namespace GrimmchildUpgrades
                 {
                     calulateRealMods();
                     done = false;
-                    PlayerData.instance.charmCost_40 = notchesCost;
-                    PlayerData.instance.CalculateNotchesUsed();
+                    if (PlayerData.instance.charmCost_40 != notchesCost)
+                    {
+                        PlayerData.instance.charmCost_40 = notchesCost;
+                        PlayerData.instance.CalculateNotchesUsed();
+
+                        if (PlayerData.instance.equippedCharm_40)
+                        {
+                            PlayerData.instance.overcharmed = true;
+                        }
+                    }
+
+                    Log("Set new power level of " + powerLevel);
                 }
             }
         }

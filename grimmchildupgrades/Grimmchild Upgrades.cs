@@ -34,6 +34,9 @@ namespace GrimmchildUpgrades
 
         public override void Initialize()
         {
+            // if the hooks exist for this delete them.
+            ModHooks.Instance.AfterSavegameLoadHook -= ResetCharmCost;
+            ModHooks.Instance.NewGameHook -= ResetCharmCostNew;
 
             SetupSettings();
 
@@ -94,6 +97,8 @@ namespace GrimmchildUpgrades
 
         private void AddComponent()
         {
+            
+
             GameManager.instance.gameObject.AddComponent<GrimmChild>();
             GameManager.instance.gameObject.AddComponent<GrimmballFireReal>();
 
@@ -110,6 +115,23 @@ namespace GrimmchildUpgrades
             Log("Disabling! If you see any more non-settings messages by this mod please report as an issue.");
             ModHooks.Instance.AfterSavegameLoadHook -= SaveGame;
             ModHooks.Instance.NewGameHook -= AddComponent;
+
+            // this will let you uninstall
+            ModHooks.Instance.AfterSavegameLoadHook += ResetCharmCost;
+            ModHooks.Instance.NewGameHook += ResetCharmCostNew;
+
+            
+        }
+
+        // a separate function shouldn't be needed for a new game but is because modapi sucks
+        private void ResetCharmCostNew()
+        {
+            GameManager.instance.gameObject.AddComponent<GrimmReset>();
+        }
+
+        private void ResetCharmCost(SaveGameData data)
+        {
+            ResetCharmCostNew();
         }
     }
 }
