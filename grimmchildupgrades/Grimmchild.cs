@@ -59,6 +59,8 @@ namespace GrimmchildUpgrades
 
         public float ballSize;
 
+        public int totalNotchesUsed;
+
 
         //take the weighted average of the original and modified speed where weighting based on vector
         public readonly double[] speedModAvgVec = { 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 };
@@ -80,7 +82,7 @@ namespace GrimmchildUpgrades
             calulateRealMods();
 
 
-            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm") && PlayerData.instance.GetInt("charmCost_40") != notchesCost)
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
             {
                 fixCharmBug();
             }            
@@ -88,6 +90,7 @@ namespace GrimmchildUpgrades
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
             ModHooks.Instance.CharmUpdateHook += addCharms;
             ModHooks.Instance.GetPlayerIntHook += addedCharm40;
+            
         }
 
         private void addCharms(PlayerData data, HeroController controller)
@@ -120,6 +123,7 @@ namespace GrimmchildUpgrades
             {
                 PlayerData.instance.SetBool("overcharmed", false);
             }
+            totalNotchesUsed = notchesUsed;
 
         }
 
@@ -129,6 +133,11 @@ namespace GrimmchildUpgrades
             {
                 return notchesCost;
             }
+            if (intName == "charmSlotsFilled")
+            {
+                return totalNotchesUsed;
+            }
+
             return PlayerData.instance.GetIntInternal(intName);
         }
 
@@ -369,7 +378,7 @@ namespace GrimmchildUpgrades
             {
                 ghostBall = ghostBallCFG;
             }
-
+            Log(" notches cost CFG is " + notchesCostCFG);
             if (powerLevel < 6 && notchesCostCFG >= notchesCostVec[truePower])
             {
                 notchesCost = notchesCostVec[truePower];
