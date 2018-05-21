@@ -53,7 +53,6 @@
     <Compile Include="Grimmchild Upgrades.cs" />
     <Compile Include="Grimmchild.cs" />
     <Compile Include="GrimmchildSettings.cs" />
-    <Compile Include="GrimmReset.cs" />
     <Compile Include="PlayMakerFSMExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

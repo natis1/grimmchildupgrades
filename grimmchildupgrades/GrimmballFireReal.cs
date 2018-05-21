@@ -44,11 +44,7 @@ namespace GrimmchildUpgrades
                 
                 //customGrimmball.d
                 Rigidbody2D grimmPhysics = customGrimmball.GetComponent<Rigidbody2D>();
-                //grimmPhysics.
-                //grimmPhysics.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
                 grimmPhysics.isKinematic = true;
-                //grimmPhysics.
-                //Destroy(grimmPhysics);
 
                 grimmballHitbox.radius = 1.1f;
 
@@ -56,8 +52,6 @@ namespace GrimmchildUpgrades
                 realSize.x = ballSize;
                 realSize.y = ballSize;
 
-                //GameObject grimmBallAttack = customGrimmball.FindGameObjectInChildren("Enemy Damager");
-                //grimmBallAttack.transform.localScale = grimmballRealSize;
 
                 customGrimmballControl.SetState("Init");
 
@@ -89,7 +83,7 @@ namespace GrimmchildUpgrades
         }
 
 
-        // Token: 0x0600006E RID: 110 RVA: 0x00005168 File Offset: 0x00003368
+        // stolen from: Token: 0x0600006E RID: 110 RVA: 0x00005168 File Offset: 0x00003368
         public GameObject GetTarget()
         {
             List<GameObject> enemyList = grimmchild.FindGameObjectInChildren("Enemy Range").GetComponent<GrimmEnemyRange>().enemyList;

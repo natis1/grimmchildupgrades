@@ -93,7 +93,6 @@ namespace GrimmchildUpgrades
         private void addCharms(PlayerData data, HeroController controller)
         {
             done = false;
-
             fixCharmBug();
 
         }
@@ -109,7 +108,7 @@ namespace GrimmchildUpgrades
             {
                 if (PlayerData.instance.GetBool("equippedCharm_" + i))
                 {
-                    notchesUsed += PlayerData.instance.GetInt("charmcost_" + i);
+                    notchesUsed += PlayerData.instance.GetInt("charmCost_" + i);
                 }
             }
             PlayerData.instance.SetInt("charmSlotsFilled", notchesUsed);
@@ -121,6 +120,7 @@ namespace GrimmchildUpgrades
             {
                 PlayerData.instance.SetBool("overcharmed", false);
             }
+
         }
 
         private int addedCharm40(string intName)
@@ -138,17 +138,12 @@ namespace GrimmchildUpgrades
             {
                 int oldPower = powerLevel;
                 getIGDamage();
-                if (oldPower != powerLevel)
+                fixCharmBug();
+                if (powerLevel != oldPower)
                 {
                     calulateRealMods();
-                    done = false;
-                    if (PlayerData.instance.GetInt("charmCost_40") != notchesCost)
-                    {
-                        fixCharmBug();
-                    }
-
-                    Log("Set new power level of " + powerLevel);
                 }
+                done = false;
             }
         }
 
@@ -173,8 +168,6 @@ namespace GrimmchildUpgrades
             {
                 return;
             }
-
-            Log("Loaded Grimmchild");
 
             gcFSM = FSMUtility.LocateFSM(grimmchild, "Control");
             if (baseFireInterval < 0.0)
@@ -290,9 +283,6 @@ namespace GrimmchildUpgrades
                 setVolumeLevels();
 
 
-            } else
-            {
-                Log("Custom call method proper already made.");
             }
             
             gcFSM.SetState("Init");
@@ -300,7 +290,6 @@ namespace GrimmchildUpgrades
             //grimmchild.PrintSceneHierarchyTree("modgrimmchild.txt");
 
             done = true;
-            Log("Done.");
         }
 
         public void Log(String str)

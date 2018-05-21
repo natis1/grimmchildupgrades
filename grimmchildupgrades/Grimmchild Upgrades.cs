@@ -9,7 +9,7 @@ namespace GrimmchildUpgrades
     public class GrimmchildUpgrades : Mod <GrimmchildSettings, GrimmchildGlobalSettings>, ITogglableMod
     {
 
-        public static string version = "0.1.1";
+        public static string version = "0.1.5";
         public readonly int loadOrder = 50;
         public bool IGAvailable;
         public static bool usingIG;
@@ -25,7 +25,28 @@ namespace GrimmchildUpgrades
 
             // report if the user has infinitegrimm.
             bool infgrimmint = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "infinitegrimm" select type).Any();
-            if (infgrimmint) ver += " + IG";
+            if (infgrimmint)
+            {
+                
+                try
+                {
+                    if ((int) Type.GetType("infinitegrimm.InfiniteGlobalVars, infinitegrimm").GetField("versionInt").GetValue(null) >= 300)
+                    {
+                        ver += " + IG";
+                    } else
+                    {
+                        ver += " (Error: Infinite Grimm too old)";
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    ver += " (Error: Infinite Grimm too old)";
+                    Log("Error reading reflection " + e);
+                }
+            }
+
+
             if (apiTooLow) ver += " (Error: ModAPI too old)";
             if (noModCommon) ver += " (Error: Grimmchild Upgrades requires ModCommon)";
 
@@ -34,22 +55,32 @@ namespace GrimmchildUpgrades
 
         public override void Initialize()
         {
-            // if the hooks exist for this delete them.
-            ModHooks.Instance.AfterSavegameLoadHook -= ResetCharmCost;
-            ModHooks.Instance.NewGameHook -= ResetCharmCostNew;
-
-            SetupSettings();
-
-
             IGAvailable = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "infinitegrimm" select type).Any();
             if (IGAvailable && GlobalSettings.infiniteGrimmIntegration)
             {
-                Log("Thank you, infinite Grimm. Always great seeing you!");
-                usingIG = true;
+                try
+                {
+                    if ((int)Type.GetType("infinitegrimm.InfiniteGlobalVars, infinitegrimm").GetField("versionInt").GetValue(null) >= 300)
+                    {
+                        Log("Thank you, infinite Grimm. Always great seeing you!");
+                        usingIG = true;
+                    }
+                    else
+                    {
+                        Log("Please update Infinite Grimm to use Infinite Grimm integration.");
+                    }
+                } catch (Exception e)
+                {
+                    Log("Please update Infinite Grimm to use Infinite Grimm integration.");
+                    Log("Error reading reflection " + e);
+                }
+                
             } else
             {
                 usingIG = false;
             }
+            SetupSettings();
+
             GrimmChild.ballSizeCFG = GlobalSettings.maxBallSize;
             GrimmChild.FBSpeedModifierCFG = GlobalSettings.maxBallMoveSpeed;
             GrimmChild.maxDamageCFG = GlobalSettings.maxDamage;
@@ -118,23 +149,8 @@ namespace GrimmchildUpgrades
             Log("Disabling! If you see any more non-settings messages by this mod please report as an issue.");
             ModHooks.Instance.AfterSavegameLoadHook -= SaveGame;
             ModHooks.Instance.NewGameHook -= AddComponent;
-
-            // this will let you uninstall
-            ModHooks.Instance.AfterSavegameLoadHook += ResetCharmCost;
-            ModHooks.Instance.NewGameHook += ResetCharmCostNew;
-
             
         }
-
-        // a separate function shouldn't be needed for a new game but is because modapi sucks
-        private void ResetCharmCostNew()
-        {
-            GameManager.instance.gameObject.AddComponent<GrimmReset>();
-        }
-
-        private void ResetCharmCost(SaveGameData data)
-        {
-            ResetCharmCostNew();
-        }
+        
     }
 }

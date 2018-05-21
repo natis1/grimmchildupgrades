@@ -4,7 +4,7 @@ namespace GrimmchildUpgrades
 {
     public class VersionInfo
     {
-        readonly public static int SettingsVer = 2;
+        readonly public static int SettingsVer = 3;
     }
 
     public class GrimmchildGlobalSettings : IModSettings
@@ -21,7 +21,7 @@ namespace GrimmchildUpgrades
             infiniteGrimmIntegration = true;
             ghostBalls = true;
 
-            maxAttackSpeedMult = 2.0f;
+            maxAttackSpeedMult = 2.5f;
             maxRangeMult = 2.0f;
             maxBallMoveSpeed = 1.5f;
             maxBallSize = 2.0f;
