@@ -90,14 +90,18 @@ namespace GrimmchildUpgrades
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
             ModHooks.Instance.CharmUpdateHook += addCharms;
             ModHooks.Instance.GetPlayerIntHook += addedCharm40;
+
+            
             
         }
 
         private void addCharms(PlayerData data, HeroController controller)
         {
             done = false;
-            fixCharmBug();
-
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
+            {
+                fixCharmBug();
+            }
         }
 
         private void fixCharmBug()
@@ -129,15 +133,17 @@ namespace GrimmchildUpgrades
 
         private int addedCharm40(string intName)
         {
-            if (intName == "charmCost_40")
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
             {
-                return notchesCost;
+                if (intName == "charmCost_40")
+                {
+                    return notchesCost;
+                }
+                if (intName == "charmSlotsFilled")
+                {
+                    return totalNotchesUsed;
+                }
             }
-            if (intName == "charmSlotsFilled")
-            {
-                return totalNotchesUsed;
-            }
-
             return PlayerData.instance.GetIntInternal(intName);
         }
 
