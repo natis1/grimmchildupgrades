@@ -80,24 +80,56 @@ namespace GrimmchildUpgrades
             calulateRealMods();
 
 
-            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm") && PlayerData.instance.charmCost_40 != notchesCost)
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm") && PlayerData.instance.GetInt("charmCost_40") != notchesCost)
             {
-                PlayerData.instance.charmCost_40 = notchesCost;
-                PlayerData.instance.CalculateNotchesUsed();
-
-                if (PlayerData.instance.equippedCharm_40)
-                {
-                    PlayerData.instance.overcharmed = true;
-                }
+                fixCharmBug();
             }            
 
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
             ModHooks.Instance.CharmUpdateHook += addCharms;
+            ModHooks.Instance.GetPlayerIntHook += addedCharm40;
         }
 
         private void addCharms(PlayerData data, HeroController controller)
         {
             done = false;
+
+            fixCharmBug();
+
+        }
+
+        private void fixCharmBug()
+        {
+            // Hey look who fixed a bug in TEAM CHERRY CODE
+            // Fuck you team cherry I just fixed your goddamn shitty
+            // notch calculating system by using GetInt instead
+            // of reading the int manually. And also by using the function
+            int notchesUsed = 0;
+            for (int i = 1; i < 41; i++)
+            {
+                if (PlayerData.instance.GetBool("equippedCharm_" + i))
+                {
+                    notchesUsed += PlayerData.instance.GetInt("charmcost_" + i);
+                }
+            }
+            PlayerData.instance.SetInt("charmSlotsFilled", notchesUsed);
+            if (PlayerData.instance.GetInt("charmSlotsFilled") > PlayerData.instance.GetInt("charmSlots"))
+            {
+                PlayerData.instance.SetBool("overcharmed", true);
+            }
+            else
+            {
+                PlayerData.instance.SetBool("overcharmed", false);
+            }
+        }
+
+        private int addedCharm40(string intName)
+        {
+            if (intName == "charmCost_40")
+            {
+                return notchesCost;
+            }
+            return PlayerData.instance.GetIntInternal(intName);
         }
 
         private void reset(Scene from, Scene to)
@@ -110,15 +142,9 @@ namespace GrimmchildUpgrades
                 {
                     calulateRealMods();
                     done = false;
-                    if (PlayerData.instance.charmCost_40 != notchesCost)
+                    if (PlayerData.instance.GetInt("charmCost_40") != notchesCost)
                     {
-                        PlayerData.instance.charmCost_40 = notchesCost;
-                        PlayerData.instance.CalculateNotchesUsed();
-
-                        if (PlayerData.instance.equippedCharm_40)
-                        {
-                            PlayerData.instance.overcharmed = true;
-                        }
+                        fixCharmBug();
                     }
 
                     Log("Set new power level of " + powerLevel);
@@ -285,6 +311,8 @@ namespace GrimmchildUpgrades
         public void OnDestroy()
         {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= reset;
+            ModHooks.Instance.CharmUpdateHook -= addCharms;
+            ModHooks.Instance.GetPlayerIntHook -= addedCharm40;
         }
 
         public void getIGDamage()
