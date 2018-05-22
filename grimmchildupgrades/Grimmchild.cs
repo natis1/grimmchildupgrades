@@ -103,144 +103,7 @@ namespace GrimmchildUpgrades
             }
             return PlayerData.instance.GetBoolInternal(originalSet);
         }
-
-        // Please ignore, useless crap code to be removed in next git commit
-        private void FixCharmFSM()
-        {
-            Log("Trying to find FSM");
-            charms = GameObject.Find("Over Indicator");
-            charmsPanel = GameObject.Find("Charms");
-            if (charms != null && charmsPanel != null)
-            {
-                PlayMakerFSM ctrl = FSMUtility.LocateFSM(charms, "Over Control");
-                FsmState clickedButton = ctrl.GetState("Idle");
-
-
-                /*
-                BoolTest a = clickedButton.GetActionsOfType<BoolTest>()[0];
-                SetBoolValue b = clickedButton.GetActionsOfType<SetBoolValue>()[0];
-                ActivateAllChildren c = clickedButton.GetActionsOfType<ActivateAllChildren>()[0];
-
-                clickedButton.RemoveActionsOfType<BoolTest>();
-                clickedButton.RemoveActionsOfType<SetBoolValue>();
-                clickedButton.RemoveActionsOfType<ActivateAllChildren>();
-
-                CallMethod charmfix = new CallMethod();
-
-                charmfix.behaviour = GameManager.instance.gameObject.GetComponent<CharmFix>();
-                charmfix.methodName = "FixCharms";
-                charmfix.parameters = new FsmVar[0];
-                charmfix.everyFrame = false;
-                clickedButton.AddAction(charmfix);
-                clickedButton.AddAction(a);
-                clickedButton.AddAction(b);
-                clickedButton.AddAction(c);
-
-                PlayMakerFSM panel = FSMUtility.LocateFSM(charmsPanel, "UI Charms");
-                panel.GetState("Deactivate UI").AddAction(charmfix);
-                panel.GetState("To Equipment").AddAction(charmfix);
-                panel.GetState("Build Equipped").AddAction(charmfix);
-
-                */
-                // wtf
-                PlayMakerFSM panel = FSMUtility.LocateFSM(charmsPanel, "UI Charms");
-                FsmState activateUI = panel.GetState("Activate UI");
-                activateUI.ClearTransitions();
-                activateUI.AddTransition("FINISHED", "Init");
-                FsmState unequip = panel.GetState("Unequippable");
-                unequip.ClearTransitions();
-                unequip.AddTransition("FINISHED", "Init");
-
-                /*
-                FsmState checkpt = panel.GetState("Check Points");
-                IntCompare l = checkpt.GetActionsOfType<IntCompare>()[0];
-                checkpt.RemoveActionsOfType<IntCompare>();
-                checkpt.AddAction(charmfix);
-                checkpt.AddAction(l);
-                */
-
-                /*
-                FsmState overNotch = panel.GetState("Over Notches");
-
-                GetPlayerDataInt[] overNotch1 = overNotch.GetActionsOfType<GetPlayerDataInt>();
-                IntOperator overNotch200 = overNotch.GetActionsOfType<IntOperator>()[0];
-                SetFsmInt overNotch3 = overNotch.GetActionsOfType<SetFsmInt>()[0];
-                SetFsmBool overNotch4 = overNotch.GetActionsOfType<SetFsmBool>()[0];
-                Translate overNotch5 = overNotch.GetActionsOfType<Translate>()[0];
-                SendEventByName overNotch6 = overNotch.GetActionsOfType<SendEventByName>()[0];
-                overNotch.RemoveActionsOfType<GetPlayerDataInt>();
-                overNotch.RemoveActionsOfType<IntOperator>();
-                overNotch.RemoveActionsOfType<SetFsmInt>();
-                overNotch.RemoveActionsOfType<SetFsmBool>();
-                overNotch.RemoveActionsOfType<Translate>();
-                overNotch.RemoveActionsOfType<SendEventByName>();
-                overNotch.AddAction(charmfix);
-                overNotch.AddAction(overNotch1[0]);
-                overNotch.AddAction(overNotch1[1]);
-                overNotch.AddAction(overNotch200);
-                overNotch.AddAction(overNotch3);
-                overNotch.AddAction(overNotch4);
-                overNotch.AddAction(overNotch5);
-                overNotch.AddAction(overNotch6);
-                panel.GetState("Return Points").AddAction(charmfix);
-
-                FsmState openst = panel.GetState("Open Slot?");
-                IntCompare m = openst.GetActionsOfType<IntCompare>()[0];
-                GetPlayerDataInt[] m1 = openst.GetActionsOfType<GetPlayerDataInt>();
-                openst.RemoveActionsOfType<IntCompare>();
-                openst.AddAction(charmfix);
-                openst.AddAction(m1[0]);
-                openst.AddAction(m1[1]);
-                openst.AddAction(m);
-
-                FsmState stopen = panel.GetState("Slot Open?");
-                GetPlayerDataInt[] n1 = stopen.GetActionsOfType<GetPlayerDataInt>();
-                IntCompare n = stopen.GetActionsOfType<IntCompare>()[0];
-                stopen.RemoveActionsOfType<IntCompare>();
-                stopen.RemoveActionsOfType<GetPlayerDataInt>();
-                stopen.AddAction(charmfix);
-                stopen.AddAction(n1[0]);
-                stopen.AddAction(n1[1]);
-                stopen.AddAction(n);
-
-                FsmState openst2 = panel.GetState("Open Slot? 2");
-                IntCompare o = openst.GetActionsOfType<IntCompare>()[0];
-                openst2.RemoveActionsOfType<IntCompare>();
-                openst2.AddAction(charmfix);
-                openst2.AddAction(o);
-
-                FsmState endOC = panel.GetState("End Overcharm?");
-                PlayerDataBoolTest p = endOC.GetActionsOfType<PlayerDataBoolTest>()[0];
-                GetPlayerDataInt[] q = endOC.GetActionsOfType<GetPlayerDataInt>();
-                IntCompare r = endOC.GetActionsOfType<IntCompare>()[0];
-                endOC.RemoveActionsOfType<PlayerDataBoolTest>();
-                endOC.RemoveActionsOfType<GetPlayerDataInt>();
-                endOC.RemoveActionsOfType<IntCompare>();
-                endOC.AddAction(charmfix);
-                endOC.AddAction(p);
-                endOC.AddAction(q[0]);
-                endOC.AddAction(q[1]);
-                endOC.AddAction(r);
-
-                //FsmState remainOC = panel.GetState("Remain Overcharmed");
-
-
-                FsmState idle = panel.GetState("Idle Collection");
-
-                SetBoolValue g = idle.GetActionsOfType<SetBoolValue>()[0];
-                SendEventByName h = idle.GetActionsOfType<SendEventByName>()[0];
-                idle.RemoveActionsOfType<SetBoolValue>();
-                idle.RemoveActionsOfType<SendEventByName>();
-                idle.AddAction(charmfix);
-                idle.AddAction(g);
-                idle.AddAction(h);
-                */
-
-                done2 = true;
-            }
-        }
         
-
         private void addCharms(PlayerData data, HeroController controller)
         {
             done = false;
@@ -473,9 +336,10 @@ namespace GrimmchildUpgrades
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= reset;
             ModHooks.Instance.GetPlayerIntHook -= addedCharm40;
             ModHooks.Instance.CharmUpdateHook -= addCharms;
+            ModHooks.Instance.GetPlayerBoolHook -= isOCed;
         }
 
-        
+
 
         public void getIGDamage()
         {

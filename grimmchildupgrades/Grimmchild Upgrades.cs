@@ -135,7 +135,6 @@ namespace GrimmchildUpgrades
 
             GameManager.instance.gameObject.AddComponent<GrimmChild>();
             GameManager.instance.gameObject.AddComponent<GrimmballFireReal>();
-            GameManager.instance.gameObject.AddComponent<CharmFix>();
 
             
         }
