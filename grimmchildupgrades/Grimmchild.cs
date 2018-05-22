@@ -132,6 +132,7 @@ namespace GrimmchildUpgrades
                 {
                     calulateRealMods();
                     ruinCharmCost();
+                    PlayerData.instance.CalculateNotchesUsed();
                 }
                 done = false;
             }
