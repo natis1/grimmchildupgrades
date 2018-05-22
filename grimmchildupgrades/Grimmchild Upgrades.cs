@@ -98,6 +98,7 @@ namespace GrimmchildUpgrades
 
             ModHooks.Instance.AfterSavegameLoadHook += SaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
+            
 
             ModHooks.Instance.ApplicationQuitHook += SaveGlobalSettings;
         }

@@ -85,23 +85,35 @@ namespace GrimmchildUpgrades
             baseFireInterval = -5.0f;
             getIGDamage();
             calulateRealMods();
-            
-            fixCharmBug();
+            ruinCharmCost();
 
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += reset;
-            ModHooks.Instance.GetPlayerIntHook += addedCharm40;
-            ModHooks.Instance.GetPlayerBoolHook += isOCed;
             ModHooks.Instance.CharmUpdateHook += addCharms;
+
+            ModHooks.Instance.BeforeSavegameSaveHook += restoreCharmCost;
+            ModHooks.Instance.SavegameSaveHook += ruinCharmCost;
+
         }
 
-        private bool isOCed(string originalSet)
+        private void ruinCharmCost()
         {
-            if (originalSet == "overcharmed")
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
             {
-                fixCharmBug2();
-                return overCharmed;
+                PlayerData.instance.charmCost_40 = notchesCost;
             }
-            return PlayerData.instance.GetBoolInternal(originalSet);
+        }
+
+        private void ruinCharmCost(int id)
+        {
+            ruinCharmCost();
+        }
+
+        private void restoreCharmCost(SaveGameData data)
+        {
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
+            {
+                PlayerData.instance.charmCost_40 = 2;
+            }
         }
         
         private void addCharms(PlayerData data, HeroController controller)
@@ -109,73 +121,17 @@ namespace GrimmchildUpgrades
             done = false;
         }
         
-
-        private void fixCharmBug()
-        {
-            fixCharmBug1();
-            fixCharmBug2();
-            Log("Fixed charms successfully");
-        }
-
-        private void fixCharmBug1()
-        {
-            // Hey look who fixed a bug in TEAM CHERRY CODE
-            // Fuck you team cherry I just fixed your goddamn shitty
-            // notch calculating system by using GetInt instead
-            // of reading the int manually. And also by using the function
-            int notchesUsed = 0;
-            for (int i = 1; i < 41; i++)
-            {
-                if (PlayerData.instance.GetBool("equippedCharm_" + i))
-                {
-                    notchesUsed += PlayerData.instance.GetInt("charmCost_" + i);
-                }
-            }
-            totalNotchesUsed = notchesUsed;
-        }
-
-        private void fixCharmBug2()
-        {
-            if (totalNotchesUsed > PlayerData.instance.GetInt("charmSlots"))
-            {
-                overCharmed = true;
-            }
-            else
-            {
-                overCharmed = false;
-            }
-        }
-
-        private int addedCharm40(string intName)
-        {
-            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
-            {
-                if (intName == "charmCost_40")
-                {
-                    return notchesCost;
-                }
-                if (intName == "charmSlotsFilled")
-                {
-                    //durr
-                    fixCharmBug1();
-                    return totalNotchesUsed;
-                }
-                
-                
-            }
-            return PlayerData.instance.GetIntInternal(intName);
-        }
-
+        
         private void reset(Scene from, Scene to)
         {
             if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
             {
                 int oldPower = powerLevel;
                 getIGDamage();
-                fixCharmBug();
                 if (powerLevel != oldPower)
                 {
                     calulateRealMods();
+                    ruinCharmCost();
                 }
                 done = false;
             }
@@ -334,9 +290,9 @@ namespace GrimmchildUpgrades
         public void OnDestroy()
         {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= reset;
-            ModHooks.Instance.GetPlayerIntHook -= addedCharm40;
             ModHooks.Instance.CharmUpdateHook -= addCharms;
-            ModHooks.Instance.GetPlayerBoolHook -= isOCed;
+            ModHooks.Instance.BeforeSavegameSaveHook -= restoreCharmCost;
+            ModHooks.Instance.SavegameSaveHook -= ruinCharmCost;
         }
 
 

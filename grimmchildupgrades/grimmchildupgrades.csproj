@@ -48,7 +48,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CharmFix.cs" />
     <Compile Include="FsmUtil.cs" />
     <Compile Include="GrimmballFireReal.cs" />
     <Compile Include="Grimmchild Upgrades.cs" />
