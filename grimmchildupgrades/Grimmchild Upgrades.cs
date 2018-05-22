@@ -9,7 +9,7 @@ namespace GrimmchildUpgrades
     public class GrimmchildUpgrades : Mod <GrimmchildSettings, GrimmchildGlobalSettings>, ITogglableMod
     {
 
-        public static string version = "0.1.5";
+        public static string version = "0.2.0";
         public readonly int loadOrder = 50;
         public bool IGAvailable;
         public static bool usingIG;
@@ -135,6 +135,7 @@ namespace GrimmchildUpgrades
 
             GameManager.instance.gameObject.AddComponent<GrimmChild>();
             GameManager.instance.gameObject.AddComponent<GrimmballFireReal>();
+            GameManager.instance.gameObject.AddComponent<CharmFix>();
 
             
         }

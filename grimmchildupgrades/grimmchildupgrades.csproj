@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\mods\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-MonomodIntegration">
+      <HintPath>..\..\mods\Assembly-MonomodIntegration.dll</HintPath>
     </Reference>
     <Reference Include="infinitegrimm">
       <HintPath>..\..\mods\infinitegrimm.dll</HintPath>
@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharmFix.cs" />
     <Compile Include="FsmUtil.cs" />
     <Compile Include="GrimmballFireReal.cs" />
     <Compile Include="Grimmchild Upgrades.cs" />
