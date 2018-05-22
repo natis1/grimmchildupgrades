@@ -133,6 +133,7 @@ namespace GrimmchildUpgrades
                     calulateRealMods();
                     ruinCharmCost();
                     PlayerData.instance.CalculateNotchesUsed();
+                    PlayerData.instance.overcharmed = (PlayerData.instance.GetInt("charmSlotsFilled") > PlayerData.instance.GetInt("charmSlots"));
                 }
                 done = false;
             }
