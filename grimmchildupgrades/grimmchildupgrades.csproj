@@ -31,8 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-MonomodIntegration">
-      <HintPath>..\..\mods\Assembly-MonomodIntegration.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\mods\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="infinitegrimm">
       <HintPath>..\..\mods\infinitegrimm.dll</HintPath>

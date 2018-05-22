@@ -13,8 +13,6 @@ namespace GrimmchildUpgrades
     class GrimmChild : MonoBehaviour
     {
         public GameObject grimmchild;
-        public GameObject charms;
-        public GameObject charmsPanel;
 
         public PlayMakerFSM gcFSM;
         public bool done;
@@ -61,9 +59,6 @@ namespace GrimmchildUpgrades
         public int maxDamage;
 
         public float ballSize;
-
-        public int totalNotchesUsed;
-        public bool overCharmed;
 
 
         //take the weighted average of the original and modified speed where weighting based on vector
