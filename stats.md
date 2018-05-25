@@ -4,7 +4,7 @@ Well this may be a silly question since this mod is designed to let you choose t
 some defaults set.
 
 These are all relative to their default values
-* Maximum attack speed multiplier: 2.0
+* Maximum attack speed multiplier: 2.5
 * Maximum fireball speed multiplier: 1.5
 * Maximum fireball size multiplier: 2.0
 * Maximum range multiplier: 2.0
