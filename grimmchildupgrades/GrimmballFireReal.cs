@@ -4,7 +4,6 @@ using System;
 using ModCommon;
 using HutongGames.PlayMaker;
 using RandomizerMod.Extensions;
-using System.Reflection;
 using System.Collections.Generic;
 
 namespace GrimmchildUpgrades
@@ -20,7 +19,12 @@ namespace GrimmchildUpgrades
         public static float ballSize;
         public static bool ghostBalls;
         public static int damage;
+        public static int soulToAdd;
 
+        public void AddSoulGrimmball()
+        {
+            HeroController.instance.AddMPChargeSpa(soulToAdd);
+        }
 
         public void Start()
         {
@@ -33,10 +37,9 @@ namespace GrimmchildUpgrades
         {
             try
             {
+                AddSoulGrimmball();
+
                 customGrimmball = UnityEngine.Object.Instantiate(deadShootSpawner.gameObject.Value, grimmchild.transform.position, Quaternion.Euler(Vector3.up));
-
-
-
                 customGrimmball.transform.position = grimmchild.transform.position;
                 PlayMakerFSM customGrimmballControl = FSMUtility.LocateFSM(customGrimmball, "Control");
                 CircleCollider2D grimmballHitbox = customGrimmball.GetComponent<CircleCollider2D>();
@@ -70,17 +73,19 @@ namespace GrimmchildUpgrades
                     Collision2dEvent initCollide = initState.GetActionsOfType<Collision2dEvent>()[0];
                     initCollide.collideTag = "Enemy";
                 }
+                
+
 
                 oldAttack.gameObject.OwnerOption = OwnerDefaultOption.SpecifyGameObject;
                 oldAttack.gameObject.GameObject = customGrimmball;
-
-                
             }
             catch (Exception e)
             {
                 Log("Unable to make the ball because of error: " + e);
             }
         }
+
+        
 
 
         // stolen from: Token: 0x0600006E RID: 110 RVA: 0x00005168 File Offset: 0x00003368

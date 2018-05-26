@@ -94,7 +94,7 @@ namespace GrimmchildUpgrades
             GrimmChild.ghostBallCFG = GlobalSettings.ghostBalls;
             GrimmChild.rangeModifierCFG = GlobalSettings.maxRangeMult;
             GrimmChild.speedModifierCFG = GlobalSettings.maxAttackSpeedMult;
-
+            GrimmChild.maxSoulAddCFG = GlobalSettings.maxSoulAdd;
 
             ModHooks.Instance.AfterSavegameLoadHook += SaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
@@ -136,7 +136,6 @@ namespace GrimmchildUpgrades
 
             GameManager.instance.gameObject.AddComponent<GrimmChild>();
             GameManager.instance.gameObject.AddComponent<GrimmballFireReal>();
-
             
         }
 

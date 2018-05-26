@@ -4,7 +4,7 @@ namespace GrimmchildUpgrades
 {
     public class VersionInfo
     {
-        readonly public static int SettingsVer = 3;
+        readonly public static int SettingsVer = 4;
     }
 
     public class GrimmchildGlobalSettings : IModSettings
@@ -28,6 +28,7 @@ namespace GrimmchildUpgrades
 
             maxDamage = 35;
             notchesCost = 6;
+            maxSoulAdd = 33;
 
             volumeMultiplier = 0.6f;
 
@@ -49,6 +50,7 @@ namespace GrimmchildUpgrades
 
         public int maxDamage { get => GetInt(); set => SetInt(value); }
         public int notchesCost { get => GetInt(); set => SetInt(value); }
+        public int maxSoulAdd { get => GetInt(); set => SetInt(value); }
 
         public float volumeMultiplier { get => GetFloat(); set => SetFloat(value); }
 

@@ -37,6 +37,7 @@ namespace GrimmchildUpgrades
 
         public static int maxDamageCFG;
         public static int notchesCostCFG;
+        public static int maxSoulAddCFG;
 
         public static float ballSizeCFG;
         public static float volumeMod;
@@ -66,6 +67,7 @@ namespace GrimmchildUpgrades
         public readonly double[] rangeModAvgVec = { 0, 0.2, 0.4, 0.6, 0.8, 1.0 };
         public readonly double[] fbSpeedModAvgVec = { 0, 0.2, 0.4, 0.6, 0.8, 1.0 };
         public readonly double[] maxDmgModAvgVec = { 0, 0.2, 0.4, 0.6, 0.8, 1.0 };
+        public readonly double[] maxSoulAddVec = { 0.1, 0.2, 0.3, 0.5, 0.7, 1.0 };
         public readonly double[] ballSizeModAvgVec = { 0.1, 0.3, 0.5, 0.7, 0.85, 1.0 };
         public readonly int[] notchesCostVec = { 3, 4, 5, 6, 6, 6 };
         public readonly bool[] useGhostBall = { false, false, false, true, true, true };
@@ -236,8 +238,7 @@ namespace GrimmchildUpgrades
                 }
                 Log("Made custom call method");
                 shootYouFool.AddAction(newDankShootMethod);
-                
-                
+
                 FireAtTarget currentFAT = shootYouFool.GetActionsOfType<FireAtTarget>()[0];
                 shootYouFool.RemoveActionsOfType<FireAtTarget>();
                 GrimmballFireReal.oldAttack = currentFAT;
@@ -296,6 +297,12 @@ namespace GrimmchildUpgrades
 
         public void getIGDamage()
         {
+            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
+            {
+                IGMaxDamage = 0;
+                powerLevel = 0;
+            }
+
             if (GrimmchildUpgrades.usingIG)
             {
                 try
@@ -346,12 +353,21 @@ namespace GrimmchildUpgrades
         public void calulateRealMods()
         {
             Log("Current power level is " + powerLevel);
+
+            // fixes not being overcharmed after killing nkg for first time
+            if (powerLevel == 0)
+            {
+                notchesCost = 2;
+                return;
+            }
+
             int truePower = powerLevel - 1;
             speedModifier = (1.0 - speedModAvgVec[truePower]) + (speedModifierCFG * speedModAvgVec[truePower]);
             rangeModifier = (1.0 - rangeModAvgVec[truePower]) + (rangeModifierCFG * rangeModAvgVec[truePower]);
             FBSpeedModifier = (1.0 - fbSpeedModAvgVec[truePower]) + (FBSpeedModifierCFG * fbSpeedModAvgVec[truePower]);
             ballSize = (float) ( (1.0 - ballSizeModAvgVec[truePower]) + (ballSizeCFG * ballSizeModAvgVec[truePower]));
             maxDamage = (int)((11.0 - 11.0 * maxDmgModAvgVec[truePower]) + ((float)maxDamageCFG * maxDmgModAvgVec[truePower]));
+            GrimmballFireReal.soulToAdd = (int)( (double) maxSoulAddCFG * maxSoulAddVec[truePower]);
             if (powerLevel < 6 && ghostBallCFG)
             {
                 ghostBall = useGhostBall[truePower];
