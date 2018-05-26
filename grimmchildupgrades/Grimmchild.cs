@@ -301,6 +301,7 @@ namespace GrimmchildUpgrades
             {
                 IGMaxDamage = 0;
                 powerLevel = 0;
+                return;
             }
 
             if (GrimmchildUpgrades.usingIG)
