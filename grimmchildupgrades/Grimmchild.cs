@@ -297,7 +297,7 @@ namespace GrimmchildUpgrades
 
         public void getIGDamage()
         {
-            if (PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
+            if (!PlayerData.instance.GetBoolInternal("killedNightmareGrimm"))
             {
                 IGMaxDamage = 0;
                 powerLevel = 0;

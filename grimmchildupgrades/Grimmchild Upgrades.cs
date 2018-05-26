@@ -9,8 +9,8 @@ namespace GrimmchildUpgrades
     public class GrimmchildUpgrades : Mod <GrimmchildSettings, GrimmchildGlobalSettings>, ITogglableMod
     {
 
-        public static string version = "0.2.0";
-        public readonly int loadOrder = 50;
+        public static string version = "0.2.1";
+        public readonly int loadOrder = 30;
         public bool IGAvailable;
         public static bool usingIG;
 
