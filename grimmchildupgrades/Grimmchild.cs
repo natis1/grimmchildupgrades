@@ -308,7 +308,7 @@ namespace GrimmchildUpgrades
             {
                 try
                 {
-                    IGMaxDamage = InfiniteGlobalVars.maximumDamage;
+                    IGMaxDamage = infinite_global_vars.maximumDamage;
                 }
                 catch
                 {

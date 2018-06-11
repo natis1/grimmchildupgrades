@@ -6,10 +6,11 @@ using System.IO;
 
 namespace GrimmchildUpgrades
 {
+    // ReSharper disable once InconsistentNaming
     public class GrimmchildUpgrades : Mod <GrimmchildSettings, GrimmchildGlobalSettings>, ITogglableMod
     {
 
-        public static string version = "0.2.1";
+        public static string version = "0.2.2";
         public readonly int loadOrder = 30;
         public bool IGAvailable;
         public static bool usingIG;
@@ -30,7 +31,7 @@ namespace GrimmchildUpgrades
                 
                 try
                 {
-                    if ((int) Type.GetType("infinitegrimm.InfiniteGlobalVars, infinitegrimm").GetField("versionInt").GetValue(null) >= 300)
+                    if (infinitegrimm.infinite_global_vars.versionInt >= 300)
                     {
                         ver += " + IG";
                     } else
@@ -60,7 +61,7 @@ namespace GrimmchildUpgrades
             {
                 try
                 {
-                    if ((int)Type.GetType("infinitegrimm.InfiniteGlobalVars, infinitegrimm").GetField("versionInt").GetValue(null) >= 300)
+                    if (infinitegrimm.infinite_global_vars.versionInt >= 300)
                     {
                         Log("Thank you, infinite Grimm. Always great seeing you!");
                         usingIG = true;
