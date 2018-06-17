@@ -13,6 +13,8 @@ Hate grimmchild? Well you will love the new one who is:
 
 How much better is the new grimmchild anyway? [stats.md explains it](stats.md).
 
+Or, [watch this video to see it in action](https://www.youtube.com/watch?v=uS3XNqguiIQ).
+
 Other features:
 
 * Optional Infinite Grimm integration- The better you do, the stronger your grimmchild will become.
