@@ -3,6 +3,7 @@ using System.Linq;
 using Modding;
 using UnityEngine;
 using System.IO;
+using System.Runtime.Serialization;
 
 namespace GrimmchildUpgrades
 {
@@ -10,7 +11,7 @@ namespace GrimmchildUpgrades
     public class GrimmchildUpgrades : Mod <GrimmchildSettings, GrimmchildGlobalSettings>, ITogglableMod
     {
 
-        public static string version = "0.2.2";
+        public static string version = "0.2.3";
         public readonly int loadOrder = 30;
         public bool IGAvailable;
         public static bool usingIG;
@@ -28,22 +29,21 @@ namespace GrimmchildUpgrades
             bool infgrimmint = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "infinitegrimm" select type).Any();
             if (infgrimmint)
             {
-                
                 try
                 {
-                    if (infinitegrimm.infinite_global_vars.versionInt >= 300)
+                    if (infiniteGrimmNewEnough())
                     {
                         ver += " + IG";
                     } else
                     {
                         ver += " (Error: Infinite Grimm too old)";
                     }
-
+                
                 }
                 catch (Exception e)
                 {
                     ver += " (Error: Infinite Grimm too old)";
-                    Log("Error reading reflection " + e);
+                    Modding.Logger.Log("[Grimmchild Upgrades] Error reading reflection " + e);
                 }
             }
 
@@ -61,7 +61,7 @@ namespace GrimmchildUpgrades
             {
                 try
                 {
-                    if (infinitegrimm.infinite_global_vars.versionInt >= 300)
+                    if (infiniteGrimmNewEnough())
                     {
                         Log("Thank you, infinite Grimm. Always great seeing you!");
                         usingIG = true;
@@ -126,6 +126,11 @@ namespace GrimmchildUpgrades
             SaveGlobalSettings();
         }
 
+        private static bool infiniteGrimmNewEnough()
+        {
+            return (infinitegrimm.infinite_global_vars.versionInt >= 355);
+        }
+
         private void SaveGame(SaveGameData data)
         {
             AddComponent();
@@ -133,8 +138,6 @@ namespace GrimmchildUpgrades
 
         private void AddComponent()
         {
-            
-
             GameManager.instance.gameObject.AddComponent<GrimmChild>();
             GameManager.instance.gameObject.AddComponent<GrimmballFireReal>();
             

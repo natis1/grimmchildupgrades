@@ -4,7 +4,7 @@ namespace GrimmchildUpgrades
 {
     public class VersionInfo
     {
-        readonly public static int SettingsVer = 4;
+        public static readonly int SettingsVer = 4;
     }
 
     public class GrimmchildGlobalSettings : IModSettings

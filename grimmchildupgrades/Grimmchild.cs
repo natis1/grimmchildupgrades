@@ -294,6 +294,12 @@ namespace GrimmchildUpgrades
         }
 
 
+        public int getInfiniteGrimmDamage()
+        {
+            return infinite_global_vars.maximumDamage;
+        }
+
+
 
         public void getIGDamage()
         {
@@ -308,7 +314,7 @@ namespace GrimmchildUpgrades
             {
                 try
                 {
-                    IGMaxDamage = infinite_global_vars.maximumDamage;
+                    IGMaxDamage = getInfiniteGrimmDamage();
                 }
                 catch
                 {
